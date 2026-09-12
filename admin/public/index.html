@@ -12,6 +12,9 @@
     <span class="brand">portfolio-admin</span>
     <a href="/" class="active">stats</a>
     <a href="/logs.html">ai logs</a>
+    <a href="/api/db" download="portfolio.sqlite">export db</a>
+    <label class="logout" for="importDbFile" style="cursor:pointer">import db</label>
+    <input type="file" id="importDbFile" accept=".sqlite,application/octet-stream" hidden>
     <button class="logout" id="logout">log out</button>
   </nav>
 
@@ -70,5 +73,6 @@
 
     load();
   </script>
+  <script src="/db-transfer.js"></script>
 </body>
 </html>
