@@ -7,23 +7,26 @@
  * login below is defense-in-depth, not the primary control.
  *
  * Env vars:
- *   ADMIN_PASSWORD  → shared password (required)
- *   SESSION_SECRET  → cookie-signing secret (required)
- *   ADMIN_PORT      → listen port (default 9000)
- *   DB_PATH         → sqlite file (default ../data/portfolio.sqlite)
+ *   ADMIN_PASSWORD       → shared password (required)
+ *   SESSION_SECRET       → cookie-signing secret (required)
+ *   INGEST_SHARED_SECRET → shared secret for portfolio's write-only /api/ingest calls (required)
+ *   ADMIN_PORT           → listen port (default 9000)
+ *   DB_PATH              → sqlite file (default ../data/portfolio.sqlite)
  */
 
 const path          = require('path');
 const express       = require('express');
 const cookieSession = require('cookie-session');
 
-const authRoutes  = require('./routes/auth');
-const logsRoutes  = require('./routes/logs');
-const statsRoutes = require('./routes/stats');
+const authRoutes   = require('./routes/auth');
+const logsRoutes   = require('./routes/logs');
+const statsRoutes  = require('./routes/stats');
+const ingestRoutes = require('./routes/ingest');
+const dbFileRoutes = require('./routes/dbfile');
 
-const { ADMIN_PASSWORD, SESSION_SECRET } = process.env;
-if (!ADMIN_PASSWORD || !SESSION_SECRET) {
-  console.error('[admin] ADMIN_PASSWORD and SESSION_SECRET must be set — refusing to start');
+const { ADMIN_PASSWORD, SESSION_SECRET, INGEST_SHARED_SECRET } = process.env;
+if (!ADMIN_PASSWORD || !SESSION_SECRET || !INGEST_SHARED_SECRET) {
+  console.error('[admin] ADMIN_PASSWORD, SESSION_SECRET and INGEST_SHARED_SECRET must be set — refusing to start');
   process.exit(1);
 }
 
@@ -54,11 +57,16 @@ app.get('/login.html', (req, res) =>
 app.get('/admin.css', (req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'admin.css')));
 
+// Server-to-server writes from the portfolio app — own shared-secret auth
+// (see routes/ingest.js), not the cookie-session gate below.
+app.use('/api/ingest', ingestRoutes);
+
 app.use(requireAuth);
 
 // ── Authenticated routes ─────────────────────────────────────
 app.use('/api/logs',   logsRoutes);
 app.use('/api/stats',  statsRoutes);
+app.use('/api/db',     dbFileRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 
 const port = parseInt(process.env.ADMIN_PORT ?? '9000', 10);
