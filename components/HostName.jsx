@@ -2,9 +2,15 @@
 import { useEffect, useState } from 'react';
 
 export default function HostName() {
-  const [host, setHost] = useState('');
+  const [info, setInfo] = useState(null);
   useEffect(() => {
-    fetch('/api/host').then(r => r.json()).then(d => setHost(d.host)).catch(() => {});
+    fetch('/api/host').then(r => r.json()).then(setInfo).catch(() => {});
   }, []);
-  return host ? ` · served by ${host}` : null;
+  if (!info) return null;
+  return (
+    <>
+      <span className="hidden sm:inline">{' · '}</span>
+      <span className="block sm:inline whitespace-nowrap">served by {info.host}{info.k8s && ' (k8s)'}</span>
+    </>
+  );
 }

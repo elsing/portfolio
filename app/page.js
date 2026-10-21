@@ -32,7 +32,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/[0.07] px-5 sm:px-10 py-4 flex flex-col sm:flex-row justify-between items-center gap-3 max-w-[1440px] mx-auto">
-        <span className="font-mono text-[12px] text-site-muted">
+        <span className="font-mono text-[12px] text-site-muted text-center sm:text-left">
           © {new Date().getFullYear()} elliot singer · singer.systems<HostName />
         </span>
         <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
